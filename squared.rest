@@ -1,0 +1,53 @@
+### get /
+GET http://localhost:3000
+
+### register user
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "johndoe@email.com",
+    "password": "securepassword1",
+    "password2": "securepassword1"
+
+}
+
+### login user
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "johndoe@email.com",
+    "password": "securepassword1"
+}
+
+### get all articles
+GET http://localhost:3000/post
+
+### create article /CREATE (protected)
+POST http://localhost:3000/post/create
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtanF5NXVjNDAwMDB4NGh1YnFhdnlmanIiLCJpYXQiOjE3NjcwMDM0MzksImV4cCI6MTc2NzA4OTgzOX0.o106blYjUzh1fhWMgGZtKOuEvtAx29JfUt9DPp3tIxU
+
+{
+    "title": "My First Article",
+    "content": "This is the content of my first article.",
+    "published": false
+}
+
+### update article /UPDATE/:ID (protected)
+PUT http://localhost:3000/post/update/cmjroorzi0000tihue0pr2q6d
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtanF5NXVjNDAwMDB4NGh1YnFhdnlmanIiLCJpYXQiOjE3NjcwMDM0MzksImV4cCI6MTc2NzA4OTgzOX0.o106blYjUzh1fhWMgGZtKOuEvtAx29JfUt9DPp3tIxU
+
+{
+    "title": "My First Updated Article",
+    "content": "This is the content of my first article.",
+    "published": false
+}
+
+### delete article /DELETE/:ID (protected)
+DELETE http://localhost:3000/post/cmjr0mzva0000gnhuart0qy6q
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtanF5NXVjNDAwMDB4NGh1YnFhdnlmanIiLCJpYXQiOjE3NjcwMDM0MzksImV4cCI6MTc2NzA4OTgzOX0.o106blYjUzh1fhWMgGZtKOuEvtAx29JfUt9DPp3tIxU
