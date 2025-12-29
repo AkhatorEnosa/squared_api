@@ -24,7 +24,7 @@
 - User authentication & authorization (JWT)
 - Rich article creation (title, content, cover image)
 
-## To Add 
+## 👀 To Add 
 
 - Reading list / bookmarks
 - Like reactions
