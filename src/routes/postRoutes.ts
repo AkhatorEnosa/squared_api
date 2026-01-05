@@ -6,13 +6,38 @@ const router = express.Router();
 
 // get all posts
 router.get('/', async (req, res) => {
+    try {
+
     const posts = await prisma.post.findMany({
         where:
         {
             published: true
-        }
+        },
+        select: {
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+            id: true,
+            title: true,
+            content: true,
+            imageUrl: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
     });
     res.json(posts);
+        
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('Error fetching posts');
+        
+    }
 });
 
 // create a new post

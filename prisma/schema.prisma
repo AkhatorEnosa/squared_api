@@ -27,6 +27,7 @@ model User {
 model Profile {
   id     String @id @default(cuid())
   bio    String?
+  userImageUrl String?
   user   User   @relation(fields: [userId], references: [id])
   userId String @unique
 }
@@ -37,7 +38,7 @@ model Post {
   title     String
   content   String?
   imageUrl  String?
-  published Boolean  @default(false)
+  published Boolean
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
   createdAt DateTime @default(now())

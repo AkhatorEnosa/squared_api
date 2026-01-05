@@ -8,7 +8,7 @@ const router = express.Router();
 
 // user register
 router.post('/register', async (req, res) => {
-    const { name, email, password, password2 } = req.body;
+    const { name, email, password, confirmPassword } = req.body;
     
     // function to sanitize all inputs
     // const sanitizeInput = (input: string) => {
@@ -16,12 +16,12 @@ router.post('/register', async (req, res) => {
     // }
 
     // validate input
-    if (!name || !email || !password || !password2) {
+    if (!name || !email || !password || !confirmPassword) {
         return res.status(400).send('Please fill in all fields');
     }
 
     // verify password match 
-    if (password !== password2) {
+    if (password !== confirmPassword) {
         return res.status(400).send('Passwords do not match');
     }
 
@@ -55,12 +55,12 @@ router.post('/register', async (req, res) => {
         })
 
         if (user) {
-            const defaultPost = "Hi guys, I just joined this awesome platform!";
+            const defaultPost = `Hi guys, my name is ${user.name} and I just joined this awesome platform!`;
 
             // create default post for the user
             await prisma.post.create({
                 data: {
-                    title: user.name + "'s first post",
+                    title: "Welcome " + user.name,
                     content: defaultPost,
                     published: true,
                     authorId: user.id
@@ -98,7 +98,7 @@ router.post('/login', async (req, res) => {
 
     // verify all inputs
     if (!email || !password) {
-        return res.status(400).send('Please fill in all fields');
+        return res.status(400).send({ message : 'Please fill in all fields'});
     }
 
     // login 
@@ -109,14 +109,14 @@ router.post('/login', async (req, res) => {
         });
 
         if (!user) {
-            return res.status(400).send('Invalid email or password');
+            return res.status(400).send({ message: 'Invalid email or password' });
         }
 
         // verify password
         const isPasswordValid = await bycrpt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(400).send('Invalid email or password');
+            return res.status(400).send({ message: 'Invalid email or password' });
         }
 
         // generate JWT token
@@ -130,7 +130,7 @@ router.post('/login', async (req, res) => {
         res.json({ message: 'User logged in successfully', token });
     } catch (error) {
         console.log(error.message)
-        res.status(500).send('Error logging in user');
+        res.status(500).send({ message: 'Error logging in user' });
     }
 });
 
