@@ -6,8 +6,8 @@ POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-    "name": "Akhator Osakhogba",
-    "email": "aosakhogba@gmail.com",
+    "name": "John Doe",
+    "email": "johndoe@gmail.com",
     "password": "pass1234",
     "confirmPassword": "pass1234"
 
@@ -28,7 +28,7 @@ GET http://localhost:3000/posts
 ### create article /CREATE (protected)
 POST http://localhost:3000/posts/create
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtazByMTl3cTAwMDA2OWh1Z3hoaHk1a2QiLCJpYXQiOjE3Njc1OTI4MTEsImV4cCI6MTc2NzY3OTIxMX0.bj9m4JpPdy46N5onNkV-WnMw3d5ZAI1pMPR37ithjoY
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtazFzeTFvNTAwMDB3NGh1ZWpkcjJ2c3oiLCJpYXQiOjE3Njc2NTc5MzIsImV4cCI6MTc2Nzc0NDMzMn0.0S3P2dFKXdp0gkZXvRPUO3ishST1QD0kgFhfYadf5rE
 
 {
     "title": "My second Article",

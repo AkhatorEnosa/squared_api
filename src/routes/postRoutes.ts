@@ -7,30 +7,37 @@ const router = express.Router();
 // get all posts
 router.get('/', async (req, res) => {
     try {
-
-    const posts = await prisma.post.findMany({
-        where:
-        {
-            published: true
-        },
-        select: {
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                }
+        
+        const posts = await prisma.post.findMany({
+            where: {
+                published: true,
             },
-            id: true,
-            title: true,
-            content: true,
-            imageUrl: true,
-            createdAt: true,
-            updatedAt: true,
-        },
-        orderBy: {
-            createdAt: 'desc'
-        },
-    });
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                imageUrl: true,
+                createdAt: true,
+                updatedAt: true,
+                // select the User (the author)
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        // Then, nest the Profile selection inside the author
+                        profile: {
+                        select: {
+                            userImageUrl: true,
+                        },
+                        },
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        console.log('Fetched all posts', posts);
     res.json(posts);
         
     } catch (error) {
@@ -72,6 +79,7 @@ router.post('/create', authMiddleware, async (req, res) => {
                 title: title.trim(),
                 content: content.trim(),
                 imageUrl: imgurl ? imgurl.trim() : null,
+                published: true,
                 authorId: req.userID
             }
         });

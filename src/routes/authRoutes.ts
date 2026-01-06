@@ -70,6 +70,7 @@ router.post('/register', async (req, res) => {
             // create profile 
             await prisma.profile.create({
                 data: {
+                    userImageUrl: `https://api.dicebear.com/9.x/personas/svg?seed=${user.name}`,
                     userId: user.id
                 }
             })
