@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.ts';
 import postRoutes from './routes/postRoutes.ts';
+import profileRoutes from './routes/profileRoutes.ts';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.get('/', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/posts', postRoutes)
+app.use('/profile', profileRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

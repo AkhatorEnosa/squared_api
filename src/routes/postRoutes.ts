@@ -19,6 +19,8 @@ router.get('/', async (req, res) => {
                 imageUrl: true,
                 createdAt: true,
                 updatedAt: true,
+                featured: true,
+                publishedAt: true,
                 // select the User (the author)
                 author: {
                     select: {
@@ -37,8 +39,7 @@ router.get('/', async (req, res) => {
                 createdAt: 'desc',
             },
         });
-        console.log('Fetched all posts', posts);
-    res.json(posts);
+        res.json(posts);
         
     } catch (error) {
         console.error(error);

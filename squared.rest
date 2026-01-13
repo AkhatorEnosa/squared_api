@@ -22,6 +22,11 @@ Content-Type: application/json
     "password": "pass1234"
 }
 
+### get user profile /PROFILE (protected)
+GET http://localhost:3000/profile
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtazF1NGRyODAwMDBobmh1enR2M3c3MzUiLCJpYXQiOjE3Njc3OTA0MTksImV4cCI6MTc2Nzg3NjgxOX0.Mb_sDTY5GkhmmirgU-nZ-jGwHELQ3DExNIIcagjKXmQ
+
 ### get all articles
 GET http://localhost:3000/posts
 
