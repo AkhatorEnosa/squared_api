@@ -20,6 +20,7 @@ model User {
   password  String
   posts     Post[]   // A User can have many Posts
   profile   Profile? // A User can have one Profile
+  reactions Reactions[]  // A User can have many Likes
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -37,11 +38,33 @@ model Post {
   title     String
   content   String?
   imageUrl  String?
-  published Boolean  @default(false)
-  publishedAt DateTime?
+  // published Boolean  @default(false)
+  // publishedAt DateTime?
   featured  Boolean  @default(false)
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reactions Reactions[]  // A Post can have many Likes
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Reactions {
+  id        String   @id @default(cuid())
+  type      ReactionType @default(LIKE)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId]) // Ensure a user can like a post only once
+}
+
+// Reaction types for reactions
+enum ReactionType {
+  LIKE
+  LOVE
+  WOW
+  SAD
+  ANGRY
 }

@@ -57,23 +57,43 @@ router.post('/register', async (req, res) => {
         if (user) {
             const defaultPost = `Hi guys, my name is ${user.name} and I just joined this awesome platform!`;
 
-            // create default post for the user
-            await prisma.post.create({
-                data: {
-                    title: "Welcome " + user.name,
-                    content: defaultPost,
-                    published: true,
-                    authorId: user.id
-                }
-            })
-
             // create profile 
-            await prisma.profile.create({
+            const createProfile = await prisma.profile.create({
                 data: {
                     userImageUrl: `https://api.dicebear.com/9.x/personas/svg?seed=${user.name}`,
                     userId: user.id
                 }
             })
+
+
+            if (createProfile) {
+                // create default post for the user
+                const createPost = await prisma.post.create({
+                    data: {
+                        title: "Welcome " + user.name,
+                        content: defaultPost,
+                        authorId: user.id
+                    }
+                }) 
+
+                if (!createPost) {
+                    // rollback user and profile creation
+                    await prisma.profile.delete({
+                        where: { id: createProfile.id }
+                    });
+
+                    await prisma.user.delete({
+                        where: { id: user.id }
+                    });
+
+                    return res.status(400).send('User registration failed');
+                }
+            } else {
+                await prisma.user.delete({
+                    where: { id: user.id }
+                });
+            }
+
             
             if (!process.env.JWT_SECRET) {
                 throw new Error('JWT_SECRET is not defined in environment variables');

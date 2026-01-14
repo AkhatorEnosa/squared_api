@@ -9,9 +9,6 @@ router.get('/', async (req, res) => {
     try {
         
         const posts = await prisma.post.findMany({
-            where: {
-                published: true,
-            },
             select: {
                 id: true,
                 title: true,
@@ -20,7 +17,6 @@ router.get('/', async (req, res) => {
                 createdAt: true,
                 updatedAt: true,
                 featured: true,
-                publishedAt: true,
                 // select the User (the author)
                 author: {
                     select: {
@@ -28,12 +24,24 @@ router.get('/', async (req, res) => {
                         name: true,
                         // Then, nest the Profile selection inside the author
                         profile: {
-                        select: {
-                            userImageUrl: true,
-                        },
+                            select: {
+                                userImageUrl: true,
+                            },
                         },
                     },
                 },
+                reactions: {
+                    select: {
+                        type: true,
+                        userId: true,
+                    }
+                }
+                ,
+                _count: {
+                    select: {
+                        reactions: true
+                    }
+                }
             },
             orderBy: {
                 createdAt: 'desc',
@@ -158,22 +166,55 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     }
 })
 
-// get posts by user
-// router.get('/user/:userId', async (req, res) => {
-//     const { userId } = req.params;
+// add reaction to post 
+router.post('/react/:postId', authMiddleware, async (req, res) => {
+    const { postId } = req.params;
+    const { type } = req.body;
 
-//     try {
-//         const userPosts = await prisma.post.findMany({
-//             where: {
-//                 authorId: userId,
-//                 published: true
-//             }
-//         });
-//         res.json(userPosts);
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Error fetching user posts');
-//     }
-// });
+    // check if user is authorized
+    if (!req.userID) {
+        return res.status(400).send('Not authorized');
+    }
+
+    // if (!type) {
+    //     return res.status(400).send('Reaction type is required');
+    // }
+
+    try {
+        // check if reaction already exists
+        const existingReaction = await prisma.reactions.findFirst({
+            where: {
+                postId: postId,
+                userId: req.userID
+            }
+        });
+
+        if (existingReaction) {
+            // update existing reaction
+            await prisma.reactions.update({
+                where: {
+                    id: existingReaction.id
+                },
+                data: {
+                    type: type
+                }
+            });
+            return res.json({ message: 'Reaction updated successfully' });
+        } else {
+            // create new reaction
+            await prisma.reactions.create({
+                data: {
+                    type: type,
+                    postId: postId,
+                    userId: req.userID
+                }
+            });
+            return res.status(201).json({ message: 'Reaction added successfully' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error adding reaction');
+    }
+});
 
 export default router;

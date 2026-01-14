@@ -6,8 +6,8 @@ POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-    "name": "John Doe",
-    "email": "johndoe@gmail.com",
+    "name": "Gosab Pentatonics",
+    "email": "gosab1@yandex.com",
     "password": "pass1234",
     "confirmPassword": "pass1234"
 
@@ -56,3 +56,12 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtanF5NXVjNDAwMDB4
 DELETE http://localhost:3000/posts/cmjr0mzva0000gnhuart0qy6q
 Content-Type: application/json
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtanF5NXVjNDAwMDB4NGh1YnFhdnlmanIiLCJpYXQiOjE3NjcwMDM0MzksImV4cCI6MTc2NzA4OTgzOX0.o106blYjUzh1fhWMgGZtKOuEvtAx29JfUt9DPp3tIxU
+
+### react to article /REACT/:ID (protected)
+POST http://localhost:3000/posts/react/cmk8t7xp30007zqhufhclkexy
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtazF1NGRyODAwMDBobmh1enR2M3c3MzUiLCJpYXQiOjE3NjgzNzY3ODYsImV4cCI6MTc2ODQ2MzE4Nn0.D2ISc-_Ez-GzpyDALrLYnnb085ZPhLcot0kHdlk2N6U
+
+{
+    "type": "LIKE"
+}
