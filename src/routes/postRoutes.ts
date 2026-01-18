@@ -88,7 +88,6 @@ router.post('/create', authMiddleware, async (req, res) => {
                 title: title.trim(),
                 content: content.trim(),
                 imageUrl: imgurl ? imgurl.trim() : null,
-                published: true,
                 authorId: req.userID
             }
         });
@@ -166,6 +165,32 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     }
 })
 
+// get reactions for a posts
+router.get('/reactions/:postId', async (req, res) => {
+    const { postId } = req.params;
+
+    try {
+        const reactions = await prisma.reactions.findMany({
+            where: {
+                postId: postId
+            },
+            select: {
+                id: true,
+                type: true,
+                postId: true,
+                userId: true,
+                createdAt: true
+            }
+        });
+
+        res.json(reactions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching reactions');
+    }
+});
+
+
 // add reaction to post 
 router.post('/react/:postId', authMiddleware, async (req, res) => {
     const { postId } = req.params;
@@ -190,6 +215,16 @@ router.post('/react/:postId', authMiddleware, async (req, res) => {
         });
 
         if (existingReaction) {
+            // remove reaction if type of reaction is the same
+            if (existingReaction.type === type) {
+                await prisma.reactions.delete({
+                    where: {
+                        id: existingReaction.id
+                    }
+                });
+                return res.json({ message: 'Reaction removed successfully' });
+            }
+
             // update existing reaction
             await prisma.reactions.update({
                 where: {
