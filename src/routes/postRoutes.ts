@@ -1,8 +1,10 @@
 import express from 'express'
 import { prisma } from '../../lib/prisma.ts';
 import authMiddleware from '../middleware/authMiddleware.ts';
+import multer from 'multer';
 
 const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
 
 // get all posts
 router.get('/', async (req, res) => {
@@ -57,16 +59,18 @@ router.get('/', async (req, res) => {
 });
 
 // create a new post
-router.post('/create', authMiddleware, async (req, res) => {
-    const { title, content, imgurl } = req.body;
+router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res) => {
+    const { title, content } = req.body;
 
     // check if user is authorized
     if (!req.userID) {
         return res.status(400).send('Not authorized');
     }
 
-    if (!title || !content) {
-        return res.status(400).send('Title and content are required');
+    const file = req.file;
+
+    if (!title || !content || !file) {
+        return res.status(400).send('Title, content, and an image are required');
     }
 
     try {
@@ -87,7 +91,7 @@ router.post('/create', authMiddleware, async (req, res) => {
             data: {
                 title: title.trim(),
                 content: content.trim(),
-                imageUrl: imgurl ? imgurl.trim() : null,
+                imageUrl: file ? file.path : null,
                 authorId: req.userID
             }
         });
@@ -102,7 +106,7 @@ router.post('/create', authMiddleware, async (req, res) => {
 // update a post 
 router.put('/update/:postId', authMiddleware, async (req, res) => {
     const { postId } = req.params;
-    const { title, content, imgurl } = req.body;
+    const { title, content, imgUrl } = req.body;
 
     // check if user is authorized
     if (!req.userID) {
@@ -122,7 +126,7 @@ router.put('/update/:postId', authMiddleware, async (req, res) => {
             data: {
                 title: title ? title.trim() : undefined,
                 content: content ? content.trim() : undefined,
-                imageUrl: imgurl ? imgurl.trim() : undefined
+                imageUrl: imgUrl ? imgUrl.trim() : undefined
             }
         });
 
