@@ -4,7 +4,11 @@ import authMiddleware from '../middleware/authMiddleware.ts';
 import multer from 'multer';
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+
+// multer storage configuration 
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
+// req.userID ? req.userID + "-" + file.originalname : "photo " + file.originalname
 
 // get all posts
 router.get('/', async (req, res) => {
@@ -95,6 +99,7 @@ router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res)
                 authorId: req.userID
             }
         });
+        console.log(file)
         console.log(req.userID, 'created a new post:');
         res.status(201).json({ message: 'Post created successfully' });
     } catch (error) {
