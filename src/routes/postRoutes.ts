@@ -2,13 +2,22 @@ import express from 'express'
 import { prisma } from '../../lib/prisma.ts';
 import authMiddleware from '../middleware/authMiddleware.ts';
 import multer from 'multer';
+import { deleteFromCloudinary, uploadToCloudinary } from '../services/cloudinary.js';
 
 const router = express.Router();
 
 // multer storage configuration 
 const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
-// req.userID ? req.userID + "-" + file.originalname : "photo " + file.originalname
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => { // Filter file types
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed!'));
+    }
+    cb(null, true);
+  }
+});
 
 // get all posts
 router.get('/', async (req, res) => {
@@ -20,6 +29,7 @@ router.get('/', async (req, res) => {
                 title: true,
                 content: true,
                 imageUrl: true,
+                imageId: true,
                 createdAt: true,
                 updatedAt: true,
                 featured: true,
@@ -73,7 +83,7 @@ router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res)
 
     const file = req.file;
 
-    if (!title || !content || !file) {
+    if (!title?.trim() || !content?.trim() || !file) {
         return res.status(400).send('Title, content, and an image are required');
     }
 
@@ -91,15 +101,22 @@ router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res)
             return res.status(400).send('You already have a similar post');
         }
 
+        // Upload Buffer to Cloudinary
+        const cloudinaryResult = await uploadToCloudinary(file.buffer);
+        // Extract the secure URL
+        const imageUrl = cloudinaryResult.secure_url;
+        const imageId = cloudinaryResult.public_id;
+
+        // create post 
         await prisma.post.create({
             data: {
                 title: title.trim(),
                 content: content.trim(),
-                imageUrl: file ? file.path : null,
+                imageUrl,
+                imageId,
                 authorId: req.userID
             }
         });
-        console.log(file)
         console.log(req.userID, 'created a new post:');
         res.status(201).json({ message: 'Post created successfully' });
     } catch (error) {
@@ -152,10 +169,26 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     // check if user is authorized
     if (!req.userID) {
-        return res.status(400).send('Not authorized');
+        return res.status(401).send('Not authorized');
     }
 
     try {
+        // find post to delete so we can get its imageId
+        const postToDelete = await prisma.post.findUnique({
+            where: { id: id }
+        });
+
+        // post not available check
+        if (!postToDelete) return res.status(404).send('Post not found');
+
+        // check if the post belongs to the user
+        if (postToDelete.authorId !== req.userID) return res.status(403).json({ message: 'Not your post' });
+
+        // Delete from Cloudinary if image exists
+        if (postToDelete.imageId) {
+            deleteFromCloudinary(postToDelete.imageId);
+        }
+
         const deletedPost = await prisma.post.deleteMany({
             where: {
                 id: id,

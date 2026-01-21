@@ -38,6 +38,7 @@ model Post {
   title     String
   content   String?
   imageUrl  String?
+  imageId   String?
   // published Boolean  @default(false)
   // publishedAt DateTime?
   featured  Boolean  @default(false)
