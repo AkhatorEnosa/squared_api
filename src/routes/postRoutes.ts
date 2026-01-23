@@ -101,19 +101,28 @@ router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res)
             return res.status(400).send('You already have a similar post');
         }
 
-        // Upload Buffer to Cloudinary
-        const cloudinaryResult = file ? await uploadToCloudinary(file.buffer) : null;
-        // Extract the secure URL and public ID from the result
-        const imageUrl = file ? cloudinaryResult.secure_url : null;
-        const imageId = file ? cloudinaryResult.public_id : null;
+
+        let cloudinaryResult;
+        let imageUrl;
+        let imageId; 
+
+        if (file) {
+            // Upload Buffer to Cloudinary
+            cloudinaryResult = await uploadToCloudinary(file.buffer);
+            
+            // Extract the secure URL and public ID from the result
+           imageUrl = cloudinaryResult.secure_url;
+           imageId = cloudinaryResult.public_id;
+        
+        }
 
         // create post 
         await prisma.post.create({
             data: {
                 title: title.trim(),
                 content: content.trim(),
-                imageUrl,
-                imageId,
+                imageUrl: imageUrl || null,
+                imageId: imageId || null,
                 authorId: req.userID
             }
         });
