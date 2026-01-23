@@ -83,7 +83,7 @@ router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res)
 
     const file = req.file;
 
-    if (!title?.trim() || !content?.trim() || !file) {
+    if (!title?.trim() || !content?.trim()) {
         return res.status(400).send('Title, content, and an image are required');
     }
 
@@ -102,10 +102,10 @@ router.post('/create', authMiddleware, upload.single('imgUrl'), async (req, res)
         }
 
         // Upload Buffer to Cloudinary
-        const cloudinaryResult = await uploadToCloudinary(file.buffer);
-        // Extract the secure URL
-        const imageUrl = cloudinaryResult.secure_url;
-        const imageId = cloudinaryResult.public_id;
+        const cloudinaryResult = file ? await uploadToCloudinary(file.buffer) : null;
+        // Extract the secure URL and public ID from the result
+        const imageUrl = file ? cloudinaryResult.secure_url : null;
+        const imageId = file ? cloudinaryResult.public_id : null;
 
         // create post 
         await prisma.post.create({
